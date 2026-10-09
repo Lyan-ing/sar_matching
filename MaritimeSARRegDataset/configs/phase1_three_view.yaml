@@ -1,0 +1,28 @@
+# Static three-view smoke test; image-plane proxy only. Same easy protocol, views=3.
+output_size: 384
+views: 3
+rotation_degrees: 5.0
+scale_min: 0.95
+scale_max: 1.05
+shear_degrees: 0.0
+perspective_fraction: 0.0
+min_overlap: 0.65
+max_overlap: 0.95
+min_valid_fraction: 0.9
+max_sampling_attempts: 180
+min_source_side_factor: 1.35
+min_ship_visible_fraction: 0.35
+min_ship_pixels: 8
+augmentation:
+  enabled: true
+  gamma_min: 0.95
+  gamma_max: 1.05
+  brightness_max: 0.03
+  contrast_min: 0.95
+  contrast_max: 1.05
+  speckle_sigma: 0.07
+  blur_probability: 0.0
+  blur_sigma_max: 0.0
+dynamic_ships:
+  enabled: false
+correspondences_per_pair: 512

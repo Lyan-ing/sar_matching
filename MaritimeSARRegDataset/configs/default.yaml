@@ -1,0 +1,35 @@
+# All rotation values are 2-D IMAGE rotations, NOT radar look-angle differences.
+output_size: 384
+views: 2
+rotation_degrees: 18.0
+scale_min: 0.85
+scale_max: 1.15
+shear_degrees: 3.0
+perspective_fraction: 0.005
+min_overlap: 0.45
+max_overlap: 0.9
+min_valid_fraction: 0.85
+max_sampling_attempts: 180
+# If a source crop is smaller than output, upsampling will be reported in meta.json.
+min_source_side_factor: 1.35
+min_ship_visible_fraction: 0.35
+min_ship_pixels: 8
+# Independent view-specific alterations (not physical SAR multi-angle simulation).
+augmentation:
+  enabled: true
+  gamma_min: 0.85
+  gamma_max: 1.15
+  brightness_max: 0.08
+  contrast_min: 0.85
+  contrast_max: 1.15
+  speckle_sigma: 0.18
+  blur_probability: 0.18
+  blur_sigma_max: 0.85
+# Extra ship movement is approximate cut-paste simulation, disabled by default.
+dynamic_ships:
+  enabled: false
+  move_probability: 0.35
+  max_shift_pixels: 12
+  min_area: 12
+# Number of uniformly sampled geometric matches for each view pair.
+correspondences_per_pair: 512

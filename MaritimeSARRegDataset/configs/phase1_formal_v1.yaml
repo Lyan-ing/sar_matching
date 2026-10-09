@@ -1,0 +1,103 @@
+# Fixed held-out image-only 2-D registration proxy, not true radar look angles.
+seed: 20261009
+source_split: test
+base_config: configs/easy.yaml
+allow_source_upsampling: false
+output_size_multiple: 32
+output_size: 384
+ssdd_output_size: 256
+max_attempts_per_sample: 50
+profiles:
+  easy:
+    min_overlap: 0.75
+    max_overlap: 0.95
+  medium:
+    min_overlap: 0.45
+    max_overlap: 0.75
+    rotation_degrees: 18
+    scale_min: 0.9
+    scale_max: 1.1
+    shear_degrees: 3
+    perspective_fraction: 0.005
+    augmentation:
+      gamma_min: 0.85
+      gamma_max: 1.15
+      brightness_max: 0.08
+      contrast_min: 0.85
+      contrast_max: 1.15
+      speckle_sigma: 0.18
+      blur_probability: 0.18
+      blur_sigma_max: 0.85
+  low:
+    output_size: 256
+    ssdd_output_size: 128
+    min_source_side_factor: 2.0
+    min_overlap: 0.08
+    max_overlap: 0.25
+    min_valid_fraction: 0.8
+    max_sampling_attempts: 360
+    rotation_degrees: 12
+    shear_degrees: 2
+    perspective_fraction: 0.003
+    augmentation:
+      speckle_sigma: 0.25
+  none:
+    output_size: 192
+    min_source_side_factor: 3.0
+    min_overlap: 0.0
+    max_overlap: 0.0
+    rotation_degrees: 3
+  dynamic:
+    min_overlap: 0.6
+    max_overlap: 0.9
+    min_source_side_factor: 1.6
+    rotation_degrees: 10
+    shear_degrees: 1
+    perspective_fraction: 0.001
+    dynamic_ships:
+      enabled: true
+      move_probability: 1.0
+      max_shift_pixels: 12
+      min_area: 12
+    augmentation:
+      speckle_sigma: 0.25
+  three:
+    views: 3
+    min_overlap: 0.45
+    max_overlap: 0.85
+    rotation_degrees: 18
+    shear_degrees: 3
+    perspective_fraction: 0.003
+    augmentation:
+      speckle_sigma: 0.18
+# Counts are per group; three-view groups produce three pair relations each.
+strata:
+  - {scene: inshore, dataset: hrsid, profile: easy, ships: present, count: 60}
+  - {scene: inshore, dataset: hrsid, profile: medium, ships: present, count: 60}
+  - {scene: inshore, dataset: hrsid, profile: easy, ships: absent, count: 20}
+  - {scene: inshore, dataset: hrsid, profile: medium, ships: absent, count: 20}
+  - {scene: inshore, dataset: ssdd, profile: easy, ships: present, count: 30}
+  - {scene: inshore, dataset: ssdd, profile: medium, ships: present, count: 30}
+  - {scene: inshore, dataset: ssdd, profile: easy, ships: absent, count: 10}
+  - {scene: inshore, dataset: ssdd, profile: medium, ships: absent, count: 10}
+  - {scene: offshore, dataset: hrsid, profile: easy, ships: present, count: 60}
+  - {scene: offshore, dataset: hrsid, profile: medium, ships: present, count: 60}
+  - {scene: offshore, dataset: hrsid, profile: easy, ships: absent, count: 20}
+  - {scene: offshore, dataset: hrsid, profile: medium, ships: absent, count: 20}
+  - {scene: offshore, dataset: ssdd, profile: easy, ships: present, count: 60}
+  - {scene: offshore, dataset: ssdd, profile: medium, ships: present, count: 60}
+  - {scene: offshore, dataset: ssdd, profile: easy, ships: absent, count: 20}
+  - {scene: offshore, dataset: ssdd, profile: medium, ships: absent, count: 20}
+  - {scene: background, dataset: background, profile: easy, ships: absent, count: 80}
+  - {scene: background, dataset: background, profile: medium, ships: absent, count: 80}
+  - {scene: any, dataset: hrsid, profile: low, ships: present, count: 10}
+  - {scene: any, dataset: hrsid, profile: low, ships: absent, count: 10}
+  - {scene: any, dataset: ssdd, profile: low, ships: present, count: 5}
+  - {scene: any, dataset: ssdd, profile: low, ships: absent, count: 5}
+  - {scene: background, dataset: background, profile: low, ships: absent, count: 10}
+  - {scene: any, dataset: hrsid, profile: none, ships: any, count: 20}
+  - {scene: background, dataset: background, profile: none, ships: absent, count: 20}
+  - {scene: any, dataset: hrsid, profile: dynamic, ships: present, count: 20}
+  - {scene: any, dataset: ssdd, profile: dynamic, ships: present, count: 20}
+  - {scene: inshore, dataset: hrsid, profile: three, ships: present, count: 10}
+  - {scene: offshore, dataset: hrsid, profile: three, ships: present, count: 10}

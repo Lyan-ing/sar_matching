@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "maritime-sar-registration-phase2"
+version = "0.1.0"
+description = "Image-only classical and pre-trained deep registration benchmarks for frozen synthetic SAR pairs"
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.24,<3", "opencv-python-headless>=4.7,<5", "PyYAML>=6", "matplotlib>=3.6"]
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+# Install torch according to local CUDA, then pip install -e git+https://github.com/cvg/LightGlue.git#egg=lightglue
+
+[project.scripts]
+sarbench = "sarbench.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["sarbench*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
