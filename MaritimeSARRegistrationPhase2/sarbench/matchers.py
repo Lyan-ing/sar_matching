@@ -16,6 +16,8 @@ class Prediction:
     precomputed_H: np.ndarray | None = None
     n_keypoints0: int | None = None
     n_keypoints1: int | None = None
+    keypoints0: np.ndarray = field(default_factory=lambda: np.empty((0,2),dtype=np.float32))
+    keypoints1: np.ndarray = field(default_factory=lambda: np.empty((0,2),dtype=np.float32))
 
 
 def _mutual_ratio(d0, d1, matcher, ratio: float) -> tuple[np.ndarray, np.ndarray]:
@@ -36,23 +38,25 @@ def _mutual_ratio(d0, d1, matcher, ratio: float) -> tuple[np.ndarray, np.ndarray
     return np.asarray(matches,dtype=np.int32).T
 
 class LocalFeatureMatcher:
-    def __init__(self, name: str, max_features: int = 2048, ratio: float = .8):
+    def __init__(self, name: str, max_features: int = 2048, ratio: float = .8, detector_options=None):
         if name not in ('sift','orb'):
             raise ValueError(name)
         self.name=name; self.ratio=ratio
         if name=='sift':
             if not hasattr(cv2,'SIFT_create'):
                 raise RuntimeError('OpenCV build lacks SIFT; install a modern opencv-python-headless.')
-            self.detector=cv2.SIFT_create(nfeatures=max_features)
+            self.detector=cv2.SIFT_create(nfeatures=max_features,**(detector_options or {}))
             self.norm=cv2.NORM_L2
         else:
-            self.detector=cv2.ORB_create(nfeatures=max_features, fastThreshold=12)
+            self.detector=cv2.ORB_create(nfeatures=max_features,**{'fastThreshold':12,**(detector_options or {})})
             self.norm=cv2.NORM_HAMMING
 
     def predict(self, img0: np.ndarray, img1: np.ndarray) -> Prediction:
         k0, d0 = self.detector.detectAndCompute(img0,None)
         k1, d1 = self.detector.detectAndCompute(img1,None)
-        counts={'n_keypoints0':len(k0),'n_keypoints1':len(k1)}
+        counts={'n_keypoints0':len(k0),'n_keypoints1':len(k1),
+                'keypoints0':np.asarray([k.pt for k in k0],np.float32).reshape(-1,2),
+                'keypoints1':np.asarray([k.pt for k in k1],np.float32).reshape(-1,2)}
         if not k0 or not k1:
             return Prediction(self.name, reason='no_descriptors',**counts)
         bf=cv2.BFMatcher(self.norm,crossCheck=False)
@@ -81,7 +85,7 @@ class PhaseCorrelation:
 
 class SuperPointLightGlue:
     name='lightglue'
-    def __init__(self, device='auto', max_features=2048, resize=None):
+    def __init__(self, device='auto', max_features=2048, resize=None, detector_threshold=None):
         try:
             import torch
             from lightglue import SuperPoint, LightGlue
@@ -95,7 +99,8 @@ class SuperPointLightGlue:
         self.torch=torch; self.rbd=rbd;self.device=torch.device(device)
         self.resize=resize
         try:
-            self.extractor=SuperPoint(max_num_keypoints=max_features).eval().to(self.device)
+            options={} if detector_threshold is None else {'detection_threshold':detector_threshold}
+            self.extractor=SuperPoint(max_num_keypoints=max_features,**options).eval().to(self.device)
             self.matcher=LightGlue(features='superpoint').eval().to(self.device)
         except Exception as e:
             raise RuntimeError('Could not initialize pretrained SuperPoint/LightGlue. Ensure official weights are cached or network download works.') from e
@@ -111,7 +116,9 @@ class SuperPointLightGlue:
             f1=self.extractor.extract(b,resize=self.resize)
             m=self.matcher({'image0':f0,'image1':f1})
             f0,f1,m=[self.rbd(q) for q in (f0,f1,m)]
-            counts={'n_keypoints0':len(f0['keypoints']),'n_keypoints1':len(f1['keypoints'])}
+            counts={'n_keypoints0':len(f0['keypoints']),'n_keypoints1':len(f1['keypoints']),
+                    'keypoints0':f0['keypoints'].detach().cpu().numpy().astype(np.float32),
+                    'keypoints1':f1['keypoints'].detach().cpu().numpy().astype(np.float32)}
             match=m['matches']
             if match.numel()==0:
                 return Prediction(self.name,reason='no_learned_matches',**counts)

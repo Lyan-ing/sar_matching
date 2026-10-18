@@ -1,0 +1,6 @@
+# Tested inference dependencies only. Install the desired torch wheel first (README).
+torch==2.5.1
+numpy==2.2.6
+opencv-python-headless==4.12.0.88
+kornia==0.8.2
+Pillow==12.3.0

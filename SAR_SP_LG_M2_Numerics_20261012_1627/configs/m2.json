@@ -1,0 +1,33 @@
+{
+  "run_id": "SAR_SP_LG_M2_Numerics_20261012_1627_m2",
+  "variant": "m2",
+  "physical_gpu": 1,
+  "seed": 26101202,
+  "input_size": 256,
+  "microbatch": 1,
+  "batch_accumulation": 2,
+  "learning_rate": 1e-05,
+  "weight_decay": 0.0001,
+  "temperature": 0.1,
+  "preserve_weight": 0.1,
+  "max_steps": 6000,
+  "validate_every": 300,
+  "checkpoint_every": 100,
+  "early_stop_min_steps": 1200,
+  "early_stop_patience": 6,
+  "train_sources": 5111,
+  "detector_max_keypoints": 1024,
+  "detector_threshold": 0.0005,
+  "geometry": "homography+frozen_full_gate",
+  "selection_rule": [
+    "maximize fixed validation Success@5px",
+    "minimize no-overlap false accept rate",
+    "maximize descriptor Recall@1"
+  ],
+  "curriculum": "0:600 easy;600:1800 medium;1800+ 20%easy60%medium20%low",
+  "source_sampling": "55%nearshore35%offshore10%background;uniform component then source",
+  "augmentation": "independent gamma/contrast and Gamma30 amplitude speckle; static supervision excludes original ship bbox+5px; later 15% simulated dynamic-region occlusion",
+  "first_validation_step": 25,
+  "training_is_synthetic_SAR_adaptation_not_real_view_supervision": true,
+  "numerical_precision": "frozen encoder AMP; trainable M2 descriptor head FP32"
+}

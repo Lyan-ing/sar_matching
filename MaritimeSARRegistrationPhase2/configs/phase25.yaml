@@ -1,0 +1,133 @@
+# Frozen after source-only preflight; no algorithm scores observed.
+seed: 25042
+source_index: ../MaritimeSARRegDataset/data/index/phase1_formal_20261009_1846/maritime_source_safe_v2.jsonl
+source_audit: ../MaritimeSARRegDataset/reports/phase1_source_relationships_v2_20261009_1846.json
+phase1_recipe: ../MaritimeSARRegDataset/configs/phase1_formal_v1.yaml
+confirmation_fraction: 0.2
+low_texture_quantile: 0.25
+max_attempts_per_sample: 120
+strata:
+- scene: inshore
+  dataset: hrsid
+  profile: easy
+  ships: present
+  count: 32
+- scene: any
+  dataset: ssdd
+  profile: easy
+  ships: present
+  count: 40
+- scene: offshore
+  dataset: hrsid
+  profile: easy
+  ships: present
+  count: 24
+- scene: offshore
+  dataset: hrsid
+  profile: easy
+  ships: present
+  texture: low
+  count: 8
+- scene: background
+  dataset: background
+  profile: easy
+  ships: absent
+  count: 24
+- scene: inshore
+  dataset: hrsid
+  profile: medium
+  ships: present
+  count: 32
+- scene: any
+  dataset: ssdd
+  profile: medium
+  ships: present
+  count: 40
+- scene: offshore
+  dataset: hrsid
+  profile: medium
+  ships: present
+  count: 24
+- scene: offshore
+  dataset: hrsid
+  profile: medium
+  ships: present
+  texture: low
+  count: 8
+- scene: background
+  dataset: background
+  profile: medium
+  ships: absent
+  count: 24
+- scene: inshore
+  dataset: hrsid
+  profile: low
+  ships: present
+  count: 8
+- scene: offshore
+  dataset: hrsid
+  profile: low
+  ships: present
+  count: 8
+- scene: any
+  dataset: ssdd
+  profile: low
+  ships: present
+  count: 8
+- scene: background
+  dataset: background
+  profile: low
+  ships: absent
+  count: 16
+- scene: any
+  dataset: hrsid
+  profile: none
+  ships: any
+  count: 16
+- scene: background
+  dataset: background
+  profile: none
+  ships: absent
+  count: 32
+- scene: inshore
+  dataset: hrsid
+  profile: dynamic
+  ships: present
+  count: 12
+- scene: offshore
+  dataset: hrsid
+  profile: dynamic
+  ships: present
+  count: 12
+- scene: any
+  dataset: ssdd
+  profile: dynamic
+  ships: present
+  count: 16
+benchmark:
+  seed: 42
+  max_features: 2048
+  variants:
+  - sift_base
+  - orb_base
+  - lightglue_base
+  - sift_contrast01
+  - orb_edge16
+  - lightglue_detect1e4
+  - lightglue_clahe
+  geometry_policies:
+  - baseline
+  - pole
+  - pole_shape
+  - pole_shape_support005
+  - pole_shape_support01
+  - pole_shape_support02
+  - pole_shape_bidirectional
+  - full
+  selection_max_success_loss: 0.02
+  selection_false_accept_weight: 1.0
+  selection_wrong_positive_weight: 1.0
+  feature_selection: max_dev_success_then_min_dev_false_accept_then_min_dev_runtime
+  reliability_selection: min_wrong_positive_rate_plus_false_accept_rate_with_success_loss_at_most_0.02_from_same_feature_homography_baseline
+source_scene_policy: Only HRSID has train/val inshore/offshore labels; SSDD unknown
+  remains unknown, never borrow test metadata.

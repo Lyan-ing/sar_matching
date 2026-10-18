@@ -1,0 +1,2 @@
+CONFIG_FILE = "configs/formal_protocol_20261018_0142.json"
+CONFIG_SHA256 = "213a0dfebfec9517f18169a837b17f6dea9cbb53e8b84348fa5ae747ebbf1831"

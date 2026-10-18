@@ -1,0 +1,11 @@
+{
+  "variant": "m0",
+  "weights": "official cached SuperPoint + LightGlue",
+  "frozen": true,
+  "input_protocol": "image_only",
+  "resize": null,
+  "max_keypoints": 1024,
+  "detection_threshold": 0.0005,
+  "geometry": "homography+frozen_full_gate",
+  "validation_plan_sha256": "a2c26ec4a07d8e9fc9ef81cab2e7fc889603370e8a15b64c7cadade0ae36a98e"
+}

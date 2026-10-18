@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SAR annotation: legacy fields with explicit unknown candidate uncertainty",
+  "type": "object",
+  "required": [
+    "sample_id",
+    "revision",
+    "points",
+    "evaluation_scope",
+    "disposition",
+    "gt_quality",
+    "content_sha256",
+    "parent_sha256",
+    "saved_at",
+    "actor"
+  ],
+  "properties": {
+    "sample_id": {
+      "type": "string"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "evaluation_scope": {
+      "enum": [
+        "local",
+        "global_sparse"
+      ]
+    },
+    "disposition": {
+      "enum": [
+        "pending",
+        "reliable_correspondences",
+        "local_only",
+        "insufficient_points",
+        "excessive_view_change",
+        "no_static_common_structure",
+        "other_not_evaluable"
+      ]
+    },
+    "points": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "sample_id",
+          "point_id",
+          "xy0",
+          "xy1",
+          "role",
+          "landmark_type",
+          "is_static",
+          "visible_both",
+          "confidence",
+          "sigma0_px",
+          "sigma1_px",
+          "used_assistance",
+          "annotator",
+          "annotated_at"
+        ],
+        "properties": {
+          "xy0": {
+            "$ref": "#/$defs/xy"
+          },
+          "xy1": {
+            "$ref": "#/$defs/xy"
+          },
+          "role": {
+            "enum": [
+              "control",
+              "check"
+            ]
+          },
+          "is_static": {
+            "type": "boolean"
+          },
+          "visible_both": {
+            "type": "boolean"
+          },
+          "sigma0_px": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "sigma1_px": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "used_assistance": {
+            "type": "boolean"
+          },
+          "review": {
+            "type": "object",
+            "required": [
+              "reviewer",
+              "reviewed_at",
+              "conclusion",
+              "xy0",
+              "xy1",
+              "sigma0_px",
+              "sigma1_px",
+              "used_assistance",
+              "static_confirmed",
+              "visible_confirmed"
+            ],
+            "properties": {
+              "xy0": {
+                "$ref": "#/$defs/xy"
+              },
+              "xy1": {
+                "$ref": "#/$defs/xy"
+              },
+              "conclusion": {
+                "enum": [
+                  "confirmed",
+                  "uncertain",
+                  "rejected"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "xy": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "type": "number",
+        "minimum": 0
+      }
+    }
+  },
+  "description": "Coordinates are native pixel centers. Upper bounds, duplicate IDs/points, source mapping, evidence and immutable hash-chain are checked by Store + quality.py. Client cannot assign gt_qualified. This schema describes saved revisions, not candidate files. Candidate uncertainty may be null; it is never imputed and null forbids independent eligibility. Numeric legacy records/policy remain unchanged."
+}

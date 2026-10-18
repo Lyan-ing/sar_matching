@@ -6,6 +6,38 @@
 
 > **科学边界：** 本工程模拟的是二维视图几何、覆盖变化和 SAR 风格扰动，是 `synthetic_2d_registration_proxy`，**不是真实的跨雷达观测角度电磁散射仿真**。标注的 `rotation_degrees` 是**图像平面旋转**，不是雷达观测方位角差。不得将 synthetic benchmark 结果当成真实 multi-view SAR benchmark。真正真实多视角验证仍需 ICEYE Dwell 或其他数据另行处理。
 
+## 服务器实测目录及使用
+
+第一阶段正式验收已完成，使用 **[正式报告](reports/phase1_formal_report_20261009_2106.md)** 和 `output/phase1_formal_20261009_1846`：860 组固定样本（840 双视图、20 三视图），展开 900 对，860/860 独立验收通过。来源关联审计合并 442 条确认关联，正式索引为 `data/index/phase1_formal_20261009_1846/maritime_source_safe_v2.jsonl`。SSDD 输出自适应 128–256 像素，源图像预上采样为零。
+
+第二阶段直接读取已冻结数据，不必重跑生成：
+
+```python
+from sarreg.formal import iter_pairs, load_images, load_groundtruth
+root = 'output/phase1_formal_20261009_1846'
+for pair in iter_pairs(root):
+    image0, image1 = load_images(pair)  # matcher 仅输入 uint8 灰度图
+    # 保存算法预测后，单独读取离线评测 GT。
+    gt = load_groundtruth(pair)
+```
+
+完整分层、固定种子、版本、依赖、31 张预览和 SIFT/LightGlue 输入方式见正式报告。旧 88 组 smoke 与新来源协议不兼容，保留为历史工程验证；不能将旧 train/val 混入正式测试协议。后续 train/val 必须使用新索引的相应 split，test 不用于调参。无重叠 40 对单独评价误配拒绝。517 源图及重复裁片不是 860 次独立采集，背景只有 2 个父组件；近重复检索并非穷尽证明。本数据仍是二维合成代理，不能视为真实跨观测角 SAR。
+
+上一批 7,164 条规范源记录、1,160 张 SL-SSDD 海陆掩膜和 88 组预检见 **[历史 Phase 1 报告](reports/phase1_report_20261009_1637.md)**。下面的原流程保留用于重现历史工程检查，正式数据使用上面的固化入口。
+
+### 一条命令重现 Phase 1
+
+```bash
+# 先建立依赖完整的 .venv，或设置 PHASE1_PYTHON 指向现有 Python 3.10+。
+bash scripts/run_phase1.sh ../dataset
+```
+
+脚本只读取原始数据，使用新的分钟时间戳目录，导出审计、四类 smoke、固定近岸/离岸/背景样例、静态三视图检查、预览和汇总。CPU 线程固定为 1。已有输出会拒绝覆盖。它保留官方划分索引，并另建 `maritime_leakage_safe.jsonl`：由相同文件连接的父场景整体并入已有 test/val；该文件是**新的显式实验协议**，不是官方 SSDD benchmark split。当前默认有放回采样仍然保留。
+
+分类 mask 均采用最近邻插值，`sea` 必须与 `valid` 联用。`validate` 检查对应点的有效、重叠和动态区域支持；`scripts/summarize_phase1.py` 额外独立核对逐像素反采样、源实例传播及三视图组合。预览新增有效/双向重叠/海陆面板，颜色语义为红色参考、青色对齐次视图。
+
+每次生成的精确配置写入 `generation_config_<split>.json`；根目录 `generation_config.json` 保留第一次调用，避免不同 split 改写旧来源记录。重跑已有目标目录会在写入 manifest/config 前失败，显式 `--overwrite` 除外。生成器不改原始图像。
+
 ## 一、手动获取数据
 
 | 数据 | 官方入口 | 提取码 | 用途 |
@@ -39,8 +71,13 @@ SL-SSDD 本身不需要作为单独的图像配准源；将它作为 SSDD 的 `-
 
 ```bash
 cd MaritimeSARRegDataset
-conda run -n match python -m pip install -e '.[dev]'
-conda run -n match python -m pytest -q
+python -m venv .venv
+# Linux / macOS:
+source .venv/bin/activate
+# Windows PowerShell:
+# .venv\Scripts\Activate.ps1
+python -m pip install -e '.[dev]'
+python -m pytest -q
 ```
 
 没有 GPU 要求。依赖：NumPy、OpenCV-headless、PyYAML、tqdm。需要正确解码 COCO 压缩 RLE 实例时可额外安装 `pycocotools`；没有该包会明确使用 bbox 代理掩膜（不是像素级真值）。
@@ -50,11 +87,11 @@ conda run -n match python -m pytest -q
 ```bash
 bash scripts/quickstart.sh
 # 或分开执行：
-conda run -n match python -m sarreg demo --out data/demo --count 24
-conda run -n match python -m sarreg prepare --dataset hrsid --root data/demo --out data/index/demo.jsonl
-conda run -n match python -m sarreg generate --index data/index/demo.jsonl --config configs/easy.yaml --split all --count 8 --out output/demo
-conda run -n match python -m sarreg validate --root output/demo
-conda run -n match python -m sarreg visualize --root output/demo --out output/previews --count 8
+python -m sarreg demo --out data/demo --count 24
+python -m sarreg prepare --dataset hrsid --root data/demo --out data/index/demo.jsonl
+python -m sarreg generate --index data/index/demo.jsonl --config configs/easy.yaml --split all --count 8 --out output/demo
+python -m sarreg validate --root output/demo
+python -m sarreg visualize --root output/demo --out output/previews --count 8
 ```
 
 **`demo` 只生成程序自检的虚构图像，绝对不是 SAR 数据，不能用于正式论文或性能实验。**
@@ -64,7 +101,7 @@ conda run -n match python -m sarreg visualize --root output/demo --out output/pr
 ### 单独 HRSID
 
 ```bash
-conda run -n match python -m sarreg prepare \
+python -m sarreg prepare \
   --dataset hrsid --root data/raw/HRSID \
   --out data/index/hrsid.jsonl
 ```
@@ -72,7 +109,7 @@ conda run -n match python -m sarreg prepare \
 ### 单独 SSDD，附加海陆掩膜（可省略 `--sea-mask-root`，且不能使用 SSDD 自带舰船实例 mask 当作 sea-land mask）
 
 ```bash
-conda run -n match python -m sarreg prepare \
+python -m sarreg prepare \
   --dataset ssdd --root data/raw/SSDD \
   --sea-mask-root data/raw/SL-SSDD \
   --out data/index/ssdd.jsonl
@@ -81,7 +118,7 @@ conda run -n match python -m sarreg prepare \
 ### 合并两套数据源
 
 ```bash
-conda run -n match python -m sarreg merge-index \
+python -m sarreg merge-index \
   --indexes data/index/hrsid.jsonl data/index/ssdd.jsonl \
   --out data/index/maritime.jsonl
 ```
@@ -91,7 +128,7 @@ conda run -n match python -m sarreg merge-index \
 如果只有无标注本地图像：
 
 ```bash
-conda run -n match python -m sarreg prepare --dataset generic --root /path/to/images --out data/index/unlabeled.jsonl
+python -m sarreg prepare --dataset generic --root /path/to/images --out data/index/unlabeled.jsonl
 ```
 
 这类数据不会编造舰船框、分割 mask。`--dataset hrsid` / `ssdd` 若找不到标注会明确报错。单独导入 HRSID 的 400 张纯背景 PNG 时使用 `--dataset background`。
@@ -100,18 +137,18 @@ conda run -n match python -m sarreg prepare --dataset generic --root /path/to/im
 
 ```bash
 # 第一轮建议先生成 10 组小规模样本
-conda run -n match python -m sarreg generate \
+python -m sarreg generate \
   --index data/index/hrsid.jsonl \
   --config configs/default.yaml \
   --split train --count 10 --seed 42 \
   --out output/hrsid_reg
 
-conda run -n match python -m sarreg validate --root output/hrsid_reg
-conda run -n match python -m sarreg visualize --root output/hrsid_reg --out output/hrsid_preview --count 10
+python -m sarreg validate --root output/hrsid_reg
+python -m sarreg visualize --root output/hrsid_reg --out output/hrsid_preview --count 10
 
 # 生成更多数据（按各自 split 调用，可指向同一根目录）
-conda run -n match python -m sarreg generate --index data/index/hrsid.jsonl --config configs/default.yaml --split val --count 100 --out output/hrsid_reg
-conda run -n match python -m sarreg generate --index data/index/hrsid.jsonl --config configs/default.yaml --split test --count 200 --out output/hrsid_reg
+python -m sarreg generate --index data/index/hrsid.jsonl --config configs/default.yaml --split val --count 100 --out output/hrsid_reg
+python -m sarreg generate --index data/index/hrsid.jsonl --config configs/default.yaml --split test --count 200 --out output/hrsid_reg
 ```
 
 如果切换配置或种子重新生成同一 split，须显式指定 `--overwrite`，或使用新的 `--out`。原始图像从索引对应 split 采样，可重复采样同一源图来合成不同扰动；输出目录根据 split 隔离。
@@ -182,9 +219,9 @@ output/hrsid_reg/
 ## 七、评价与验收
 
 ```bash
-conda run -n match python -m pytest -q
-conda run -n match python -m sarreg validate --root output/hrsid_reg
-conda run -n match python -m sarreg visualize --root output/hrsid_reg --out output/previews --count 12
+python -m pytest -q
+python -m sarreg validate --root output/hrsid_reg
+python -m sarreg visualize --root output/hrsid_reg --out output/previews --count 12
 ```
 
 `validate` 检查逆变换一致性、相对 Homography、重叠掩膜、导出匹配点的重投影误差，以及 bbox 越界；支持无网络运行，不依赖模型。`visualize` 导出 view0、view1（绿色框为舰船标注），以及变换之后的红/青叠加图。
@@ -215,8 +252,8 @@ conda run -n match python -m sarreg visualize --root output/hrsid_reg --out outp
 bash scripts/quickstart.sh
 
 # 真 HRSID 实验
-conda run -n match python -m sarreg prepare --dataset hrsid --root data/raw/HRSID --out data/index/hrsid.jsonl
-conda run -n match python -m sarreg generate --index data/index/hrsid.jsonl --out output/hrsid_reg --split train --count 1000 --seed 42
-conda run -n match python -m sarreg validate --root output/hrsid_reg
-conda run -n match python -m sarreg visualize --root output/hrsid_reg --out output/hrsid_vis --count 12
+python -m sarreg prepare --dataset hrsid --root data/raw/HRSID --out data/index/hrsid.jsonl
+python -m sarreg generate --index data/index/hrsid.jsonl --out output/hrsid_reg --split train --count 1000 --seed 42
+python -m sarreg validate --root output/hrsid_reg
+python -m sarreg visualize --root output/hrsid_reg --out output/hrsid_vis --count 12
 ```

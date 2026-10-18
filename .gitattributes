@@ -1,0 +1,2 @@
+# Preserve upstream license bytes, including their original whitespace.
+sar_match_portable/licenses/*.txt -whitespace

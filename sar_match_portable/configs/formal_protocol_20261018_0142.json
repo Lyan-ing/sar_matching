@@ -1,0 +1,98 @@
+{
+  "seed": 42,
+  "input": {
+    "mode": "OpenCV IMREAD_GRAYSCALE, uint8 / 255.0, FP32",
+    "resize": false,
+    "min_side": 64,
+    "max_side": 640,
+    "equal_shapes": true,
+    "pixel_coordinates": "native (x,y), x right y down"
+  },
+  "extractor": {
+    "max_keypoints": 1024,
+    "nms_radius": 4,
+    "border": 4,
+    "threshold": 0.0005,
+    "descriptor_dim": 256,
+    "descriptor_stride": 8,
+    "sample_align_corners": true,
+    "stable_sort": true
+  },
+  "lightglue": {
+    "features": null,
+    "input_dim": 256,
+    "descriptor_dim": 256,
+    "add_scale_ori": false,
+    "n_layers": 9,
+    "num_heads": 4,
+    "flash": true,
+    "mp": false,
+    "depth_confidence": 0.95,
+    "width_confidence": 0.99,
+    "filter_threshold": 0.1,
+    "weights": null
+  },
+  "geometry": {
+    "model": "homography",
+    "policy": "full",
+    "reproj_px": 3.0,
+    "min_matches": 8,
+    "min_inliers": 8,
+    "min_inlier_ratio": 0.3,
+    "min_coverage": 0.0625,
+    "max_inlier_rmse": 3.0,
+    "max_iters": 5000,
+    "confidence": 0.995,
+    "h_direction": "image_A_to_image_B",
+    "pole_margin": 0.01,
+    "corner_area_range": [
+      0.1,
+      10
+    ],
+    "edge_scale_range": [
+      0.1,
+      10
+    ],
+    "max_jacobian_condition": 20,
+    "min_hull": 0.01,
+    "min_isotropy": 0.005,
+    "max_cycle_mean_px": 10,
+    "max_symmetric_transfer_rmse": 3
+  },
+  "weights": {
+    "final": {
+      "file": "checkpoints/final_inference.pth",
+      "sha256": "546c9b67d0307768ebac73ac3bdca4ef041ee576532fcef9d2457bdc7a6cac67",
+      "source_sha256": "9891e5dec87e660dfa66fba372f8c46399f3ca37fdc8d986ecfabb84c496ffac",
+      "source_record": "SAR_SP_LowTextureKeep_20261017_0908/runs/formal/best_trained_20261017_0908.ckpt",
+      "tensors": 35,
+      "step": 6000,
+      "tensor_conversion": "exact CPU state_dict only; no optimizer/RNG/pickled training objects"
+    },
+    "structure": {
+      "file": "checkpoints/structure_inference.pth",
+      "sha256": "ac2c8f22d6b11d9a36418485bdb48d27be66e592f430ae2b37677b21af7d7691",
+      "source_sha256": "662b9caf27fca7fd8b2ef45600fde7db5714c2bfcde51d5a4834901caac48bca",
+      "source_record": "SAR_SP_LG_StructureStable_20261013_2210/runs/b/best.ckpt",
+      "tensors": 35,
+      "step": null,
+      "tensor_conversion": "exact CPU state_dict only; no optimizer/RNG/pickled training objects"
+    },
+    "pretrained": {
+      "file": "checkpoints/pretrained_inference.pth",
+      "sha256": "526811b11e067b28b790a0286d39ab2826ee2ad1585708445acafbd83384838d",
+      "source_sha256": "52b6708629640ca883673b5d5c097c4ddad37d8048b33f09c8ca0d69db12c40e",
+      "source_record": "MaritimeSARRegistrationPhase2/cache/torch/hub/checkpoints/superpoint_v1.pth",
+      "tensors": 24,
+      "step": null,
+      "tensor_conversion": "exact CPU state_dict only; no optimizer/RNG/pickled training objects"
+    },
+    "lightglue": {
+      "file": "checkpoints/lightglue_superpoint.pth",
+      "sha256": "6ff7040d0a497fc6639337946d7538dae07428c18f77a067a0b5a960e7cc551a",
+      "upstream_url": "https://github.com/cvg/LightGlue/releases/download/v0.1_arxiv/superpoint_lightglue.pth"
+    }
+  },
+  "reference_qualified": false,
+  "reference_note": "Final research checkpoint, not a guarantee of physically correct real multi-view registration."
+}

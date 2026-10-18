@@ -1,0 +1,18 @@
+{
+  "required_fields": [
+    "layer",
+    "real_acquisitions",
+    "source_component",
+    "site",
+    "split_role",
+    "supervision_kind",
+    "uncertainty",
+    "transform_or_search_region",
+    "parent_native_window",
+    "license"
+  ],
+  "unknown_not_negative": true,
+  "augmentations_not_independent": true,
+  "all_current_examples_diagnostic": true,
+  "real_positive_gate": "gt_qualified + same V2 native frame + independent exposure screening"
+}

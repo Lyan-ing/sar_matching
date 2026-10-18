@@ -1,0 +1,52 @@
+{
+  "seed": 42,
+  "steps": 6000,
+  "effective_batch": 8,
+  "microbatch": 2,
+  "accumulation": 4,
+  "structure_pairs": 4,
+  "keep_pairs": 4,
+  "lambda_keep": 0.0,
+  "learning_rate": 1e-05,
+  "weight_decay": 0.0001,
+  "clip_norm": 5.0,
+  "scheduler": "cosine floor0.1 over6000",
+  "precision": "BF16 convolutions; FP32 normalized descriptors/loss; scaler disabled",
+  "initialization": "/home/yl/matching/sar_matching/SAR_SP_LG_StructureStable_20261013_2210/runs/b/best.ckpt",
+  "initialization_sha": "662b9caf27fca7fd8b2ef45600fde7db5714c2bfcde51d5a4834901caac48bca",
+  "teacher_sha": "662b9caf27fca7fd8b2ef45600fde7db5714c2bfcde51d5a4834901caac48bca",
+  "lightglue_sha": "6ff7040d0a497fc6639337946d7538dae07428c18f77a067a0b5a960e7cc551a",
+  "trainable_parameters": 360960,
+  "trainable_names": [
+    "sp.convDa.weight",
+    "sp.convDa.bias",
+    "sp.convDb.weight",
+    "sp.convDb.bias"
+  ],
+  "data": {
+    "train": {
+      "path": "/home/yl/matching/sar_matching/SyntheticSAR_Mixed640512_Multicondition_20261016_2114/manifests/train_CANONICAL_20261016_2147.jsonl",
+      "sha": "ad53295460c7048894d199426c921199e2455090e04cc935e62f2a568b99a817"
+    },
+    "val": {
+      "path": "/home/yl/matching/sar_matching/SyntheticSAR_Mixed640512_Multicondition_20261016_2114/manifests/val_CANONICAL_20261016_2147.jsonl",
+      "sha": "2ea0948b2d9ca6b515887cb445eedb92bac17195b65165fcd1c3d61cd731791d"
+    }
+  },
+  "sampler": "/home/yl/matching/sar_matching/SAR_SP_LowTextureKeep_20261017_0908/plans/sampling_seed42_20261017_0908.jsonl",
+  "sampler_sha": "352bbac63a1890a30f29660c05cbea1c58d3e3919223971ea829b692fd512139",
+  "code_sha": {
+    "runtime.py": "ef4b4f4e427725d392078c40d09bf68366526947d45c01bef8993a620a5770e7",
+    "mixed_io.py": "dd21642887d4ef0efff9a8817a0d542bce92a736918b1f02028ca3899e5554f2",
+    "keep_data.py": "8e7e98d7bd02e2d2a654877b9916b39ff522aba0951e921b32cb492efd4efc70",
+    "keep_objective.py": "e0901520af2d250facecd952d8bd5317928f5b6d8ae683eb341994a3d144ecfc",
+    "keep_train.py": "5499a84d99b5b6301786070beb99dfd0a281b6d3d03c7e15bfed35f0262c6cab",
+    "keep_evaluate.py": "0d7976d05f28008a18c986772c8763df75f9776597d0b86d86ce09106abc34d5",
+    "old_objective.py": "85c92fed2be08c9a4efb8ac5cf9c85df54b8a2c8a70edd1e6ef52da54b9822b3"
+  },
+  "descriptor_objective": "old reliable CE/positive-only, same q/temperature0.1/negative exclusion8px/local weight; old0.1 anchor preserve removed",
+  "keep_objective": "mean(1-cos) same-input teacher/student on explicit legal uniform positions; no new match labels",
+  "validation_every": 2000,
+  "selection": "nonzero-step Natural geometric S5 primary, then offshore S5, then structure S5; best candidate and qualified candidate separate",
+  "qualification": "Natural gain>=0.01; offshore>=initial-0.02; structure>=initial; Equal>=initial-0.01; positive wrong accept rate<=initial+0.005; no-overlap FPR<=initial; detector/probes unchanged"
+}

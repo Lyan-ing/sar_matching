@@ -1,0 +1,37 @@
+# Source-only plan; no confirmation matcher scores have been observed.
+phase25_run: output/phase25_20261010_0000
+source_index: ../MaritimeSARRegDataset/data/index/phase1_formal_20261009_1846/maritime_source_safe_v2.jsonl
+source_audit: ../MaritimeSARRegDataset/reports/phase1_source_relationships_v2_20261009_1846.json
+phase1_recipe: ../MaritimeSARRegDataset/configs/phase1_formal_v1.yaml
+data_seed: 26042
+inference_seed: 42
+low_texture_quantile: 0.25
+max_source_reuse: 2
+max_attempts_per_sample: 120
+gpu: 0
+primary_hypothesis: Locked improvements retain greater Success@5 and fewer incorrect accepts on unused source components; report failures without retuning.
+primary_methods: [sift_original, sift_improved, orb_original, orb_improved, lightglue_original, lightglue_improved, orb_then_sift]
+attribution_only: [selected_feature_homography_baseline, selected_feature_affine_baseline]
+timing: Steady-state wall clock from reading both images through image-only acceptance, GPU synchronized; initialization/warmup/evaluation/persistence excluded. Hybrid executes ORB and conditionally SIFT anew, shares only decoded images.
+strata:
+- {scene: inshore, dataset: hrsid, profile: easy, ships: present, count: 38}
+- {scene: offshore, dataset: hrsid, profile: easy, ships: present, count: 34}
+- {scene: offshore, dataset: hrsid, profile: easy, ships: present, texture: low, count: 8}
+- {scene: any, dataset: ssdd, profile: easy, ships: present, count: 40}
+- {scene: background, dataset: background, profile: easy, ships: absent, count: 8}
+- {scene: inshore, dataset: hrsid, profile: medium, ships: present, count: 38}
+- {scene: offshore, dataset: hrsid, profile: medium, ships: present, count: 34}
+- {scene: offshore, dataset: hrsid, profile: medium, ships: present, texture: low, count: 8}
+- {scene: any, dataset: ssdd, profile: medium, ships: present, count: 40}
+- {scene: background, dataset: background, profile: medium, ships: absent, count: 8}
+- {scene: inshore, dataset: hrsid, profile: low, ships: present, count: 8}
+- {scene: offshore, dataset: hrsid, profile: low, ships: present, count: 12}
+- {scene: any, dataset: ssdd, profile: low, ships: present, count: 16}
+- {scene: background, dataset: background, profile: low, ships: absent, count: 4}
+- {scene: any, dataset: hrsid, profile: none, ships: any, count: 44}
+- {scene: background, dataset: background, profile: none, ships: absent, count: 4}
+- {scene: inshore, dataset: hrsid, profile: dynamic, ships: present, count: 8}
+- {scene: offshore, dataset: hrsid, profile: dynamic, ships: present, count: 8}
+- {scene: any, dataset: ssdd, profile: dynamic, ships: present, count: 24}
+- {scene: inshore, dataset: hrsid, profile: strong, ships: present, count: 8, perspective_fraction: 0.06, evaluation_subset: strong_stress}
+- {scene: offshore, dataset: hrsid, profile: strong, ships: present, count: 8, perspective_fraction: 0.06, evaluation_subset: strong_stress}

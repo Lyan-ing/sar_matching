@@ -18,6 +18,7 @@ class Estimated:
     confidence: float | None
     model_type: str
     candidate_H: np.ndarray | None = None
+    inlier_mask: np.ndarray | None = None
 
 
 def perspective(H, xy):
@@ -79,4 +80,4 @@ def estimate(pred: Prediction, img_shape: tuple[int,int], *, model='homography',
     elif coverage<min_coverage: reason='spatially_degenerate'
     elif not np.isfinite(rmse) or rmse>max_inlier_rmse: reason='large_fit_residual'
     accepted=reason=='ok'
-    return Estimated(H if accepted else None,accepted,reason,n,count,ratio,rmse,coverage,None,model,H)
+    return Estimated(H if accepted else None,accepted,reason,n,count,ratio,rmse,coverage,None,model,H,inliers)
